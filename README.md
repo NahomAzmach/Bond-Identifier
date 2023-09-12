@@ -1,7 +1,7 @@
 # Bond-Identifier
 ---
 
-My project applies infrared spectroscopy concepts to a program that identifies bond peaks from IR charts. It takes 3 visible identifier inputs: #i) peak shape (narrow/broad) #ii) peak strength (strong/medium/weak) #iii) approximate bond frequency wavelength. Based on these inputs, it outputs the bond structure represented by the peak.
+My project applies infrared spectroscopy concepts to a program that identifies bond peaks from IR charts. It takes 3 visible identifier inputs: 1.) peak shape (narrow/broad) 2.) peak strength (strong/medium/weak) 3.) approximate bond frequency wavelength. Based on these inputs, it outputs the bond structure represented by the peak.
 
 
 # The logic behind the program
@@ -10,17 +10,17 @@ The Bond-Identifier program allows identifying bonds from infrared spectroscopy 
 
 # Methods
 ---
-• Node class<br>
- &nbsp; • Stores bond frequency range, shape, strength, and bond type<br>
- *Tabspace* • Implements the tree nodes<br>
-• Tree class<br>
- *Tabspace* • Contains root node<br>
-  *Tabspace*• insert() - Inserts a new node into the tree<br>
-*Tabspace*  • lookup() - Searches the tree to find the bond for given inputs<br>
-• Main class<br>
- *Tabspace* • Creates the tree<br>
- *Tabspace* • Takes user input<br>
- *Tabspace* • Calls lookup() to identify bond<br>
+● Node class<br><br>
+ &emsp;• Stores bond frequency range, shape, strength, and bond type<br>
+ &emsp;• Implements the tree nodes<br><br>
+● Tree class<br><br>
+ &emsp;• Contains root node<br>
+  &emsp;• insert() - Inserts a new node into the tree<br>
+&emsp; • lookup() - Searches the tree to find the bond for given inputs<br><br>
+● Main class<br><br>
+ &emsp; • Creates the tree<br>
+&emsp; • Takes user input<br>
+&emsp; • Calls lookup() to identify bond<br><br>
   
 # Data Structure
 ---
@@ -30,6 +30,6 @@ Using a BST provides O(log n) lookup time on average. A hash table is used at th
 
 # Key Lessons for me
 ---
- *Tabspace* • Implementing a BST with insert and lookup functions<br>
- *Tabspace* • Traversing a BST recursively to find target nodes<br>
- *Tabspace* • Writing clean by separating tree and node implementations because at first, I tried to implement       this all under one class. <br>
+ &emsp;• Implementing a BST with insert and lookup functions<br>
+&emsp;• Traversing a BST recursively to find target nodes<br>
+&emsp; • Writing clean by separating tree and node implementations because at first, I tried to&emsp;implement this all under one class. <br>
