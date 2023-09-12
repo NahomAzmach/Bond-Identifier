@@ -35,9 +35,14 @@ class Tree {
     }
 
     public void insert(int min, int max, String shape, int strength, String bond) {
-        //insert node into tree
-        root = insertHlpr(root, min, max, shape, strength, bond);
-        // Update hashmap
+
+        if (min != max) {
+            // not a single frequency
+            root = insertHlpr(root, min, max, shape, strength, bond);
+        }
+        //insert node into tree as a range
+        root = insertHlpr(root, min, min, shape, strength, bond);
+        // update hashmap
         String key = min + "-" + max;
         freqToBond.put(key, bond);
     }
@@ -146,29 +151,27 @@ class Main {
 
 
         // Insert some sample data
-        tree.insert(1000, 2000,"Narrow", 1, "C-C");
-        tree.insert(1500, 2000, "Broad", 2, "C-O");
-        tree.insert(2000, 3000, "Narrow", 3, "C-H");
+        tree.insert(3584, 3700,"narrow", 2, "O-H Stretching (Alcohol)");
+        tree.insert(3200, 3550, "broad", 3, "O-H Stretching (Alcohol)");
+        tree.insert(3500, 3500, "narrow", 2, "N-H Stretching (Primary Amine)");
         // Perform lookups
 
         tree.dumpTree();
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("\nHello, this program is intended to find the corresponding bond given the strength, shape, and the frequency of the specific IR spectrum peak\n");
-
-        System.out.println("Enter the estimated frequency of your peak without units: ");
-            int inputFreq = sc.nextInt();
-
-        System.out.println("Now enter the strength of your peak on a scale from 1-3 (Weak[1], Medium[2], Strong[3]): ");
-            int inputStrength = sc.nextInt();
-
-        System.out.println("Finally, what's the shape of your peak? Is it narrow or broad: ");
-            String inputShape = sc.next();
-
-        String bond = tree.lookup(inputFreq, inputShape, inputStrength);
-        System.out.println("\nThe bond that you are looking at right now is a " + bond + " bond");
+//        Scanner sc = new Scanner(System.in);
+//
+//        System.out.println("\nHello, this program is intended to find the corresponding bond given the strength, shape, and the frequency of the specific IR spectrum peak\n");
+//
+//        System.out.println("Enter the estimated frequency of your peak without units: ");
+//            int inputFreq = sc.nextInt();
+//
+//        System.out.println("Now enter the strength of your peak on a scale from 1-3 (Weak[1], Medium[2], Strong[3]): ");
+//            int inputStrength = sc.nextInt();
+//
+//        System.out.println("Finally, what's the shape of your peak? Is it narrow or broad: ");
+//            String inputShape = sc.next();
+//
+//        String bond = tree.lookup(inputFreq, inputShape, inputStrength);
+//        System.out.println("\nThe bond that you are looking at right now is a " + bond + " bond");
     }
-
-
 
 }
