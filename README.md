@@ -11,7 +11,7 @@ The Bond-Identifier program allows identifying bonds from infrared spectroscopy 
 # Methods
 ---
 • Node class<br>
- *Tabspace* • Stores bond frequency range, shape, strength, and bond type<br>
+ &nbsp; • Stores bond frequency range, shape, strength, and bond type<br>
  *Tabspace* • Implements the tree nodes<br>
 • Tree class<br>
  *Tabspace* • Contains root node<br>
