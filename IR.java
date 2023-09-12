@@ -1,13 +1,17 @@
 import java.util.*;
 import java.util.Scanner;
+import java.util.HashMap;
+
 
 class Node {
     int freq;
     int minFreq;
     int maxFreq;
+
     String shape;
     int strength; // 1, 2, or 3 (Strong, medium, weak)
     String bond;
+
     Node left;
     Node right;
 
@@ -18,27 +22,24 @@ class Node {
         this.shape = shape;
         this.strength = strength;
         this.bond = bond;
-
-        left = null;
-        right = null;
     }
 }
 
 class Tree {
 
     Node root;
-    HashMap<String, String> freqRangeToBond;
+    HashMap<String, String> freqToBond;
 
+    public Tree() {
+        freqToBond = new HashMap<>();
+    }
 
     public void insert(int min, int max, String shape, int strength, String bond) {
-        // Update hashmap
-        String range = min + "-" + max;
-        freqRangeToBond.put(range, bond);
-
-
         //insert node into tree
         root = insertHlpr(root, min, max, shape, strength, bond);
-
+        // Update hashmap
+        String key = min + "-" + max;
+        freqToBond.put(key, bond);
     }
 
     private Node insertHlpr(Node node, int minFreq, int maxFreq, String shape, int strength, String bond) {
@@ -55,7 +56,6 @@ class Tree {
 
     public void delete(int freq) {
         root = deleteNode(root, freq);
-        root..remove(freq); // Remove the corresponding entry from the map
     }
 
     private Node deleteNode(Node root, int freq) {
@@ -99,29 +99,43 @@ class Tree {
 
 
     public String lookup(int freq, String shape, int strength) {
-        return lookupHelper(root, freq, shape, strength);
-    }
 
+       Node ans = lookupHelper(root, freq, shape, strength);
 
-    private String lookupHelper(Node node, int freq, String shape, int strength) {
-        if (node == null) {
+        if (ans != null) {
+            return ans.bond;
+        } else {
             return "Bond Not Found";
         }
 
-        if (freq >= node.minFreq && freq <= node.maxFreq && shape.equalsIgnoreCase(node.shape) && strength == node.strength){
-            return node.bond;
+    }
+
+
+    private Node lookupHelper(Node node, int freq, String shape, int strength) {
+        if (node == null) {
+            return null;
+        }
+
+        if (freq >= node.minFreq && freq <= node.maxFreq && shape.equalsIgnoreCase(node.shape) && strength == node.strength) {
+            return node;
         }
         if (freq < node.freq) {
             return lookupHelper(node.left, freq, shape, strength);
-        } else if (freq > node.freq) {
-            return lookupHelper(node.right, freq, shape, strength);
         } else {
-            //frequencies match but shape or strength dont
-            String leftResult = lookupHelper(node.left, freq, shape, strength);
-            if (!leftResult.equals("Bond Not Found")) {
-                return leftResult;
-            }
             return lookupHelper(node.right, freq, shape, strength);
+        }
+    }
+
+    public void dumpTree() {
+        System.out.println("Contents of tree:");
+        inOrderTraversal(root);
+    }
+
+    private void inOrderTraversal(Node node) {
+        if (node != null) {
+            inOrderTraversal(node.left);
+            System.out.println("Min and Max Frequency respectively: " + node.minFreq + ", " + node.maxFreq + ", Shape: " + node.shape + ", Strength: " + node.strength + ", Bond: " + node.bond);
+            inOrderTraversal(node.right);
         }
     }
 }
@@ -132,23 +146,29 @@ class Main {
 
 
         // Insert some sample data
-        tree.insert(1000, "Narrow", 1, "C-C");
-        tree.insert(1500, "Broad", 2, "C-O");
-        tree.insert(2000, "Narrow", 3, "C-H");
+        tree.insert(1000, 2000,"Narrow", 1, "C-C");
+        tree.insert(1500, 2000, "Broad", 2, "C-O");
+        tree.insert(2000, 3000, "Narrow", 3, "C-H");
         // Perform lookups
+
+        tree.dumpTree();
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("\n Hello, this program is intended to find the corresponding bond given the strength, shape," +
-                " and the frequency of the specific IR spectrum peak\n");
+        System.out.println("\nHello, this program is intended to find the corresponding bond given the strength, shape, and the frequency of the specific IR spectrum peak\n");
+
         System.out.println("Enter the estimated frequency of your peak without units: ");
             int inputFreq = sc.nextInt();
+
         System.out.println("Now enter the strength of your peak on a scale from 1-3 (Weak[1], Medium[2], Strong[3]): ");
             int inputStrength = sc.nextInt();
+
         System.out.println("Finally, what's the shape of your peak? Is it narrow or broad: ");
             String inputShape = sc.next();
 
-        System.out.println("\nThe bond that you are looking at right now is a " + tree.lookup(inputFreq, inputShape, inputStrength) + " bond");
+        String bond = tree.lookup(inputFreq, inputShape, inputStrength);
+        System.out.println("\nThe bond that you are looking at right now is a " + bond + " bond");
     }
+
 
 
 }
