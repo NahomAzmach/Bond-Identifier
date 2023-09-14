@@ -1,10 +1,130 @@
 import java.awt.*;
 import java.util.*;
+import javax.swing.*;
 import java.util.List;
 import java.util.Scanner;
 import java.util.HashMap;
-import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+
+public class IRGUI extends JFrame {
+
+    private JTextField freqField;
+    private JTextField shapeField;
+    private JTextField strengthField;
+    private JLabel output;
+
+    public IRGUI() {
+        Tree tree = new Tree();
+
+
+        // Insert some sample data
+        tree.insert(3584, 3700,"narrow", 2, "O-H Stretching (Alcohol)");
+        tree.insert(3200, 3550, "broad", 3, "O-H Stretching (Alcohol)");
+        tree.insert(3500, 3500, "narrow", 2, "N-H Stretching (Primary Amine)");
+        tree.insert(3300, 3400, "narrow", 2, "N-H Stretching (Aliphatic primary Amine)");
+        tree.insert(3310, 3350, "narrow", 2, "N-H Stretching (Secondary Amine)");
+        tree.insert(2500, 3300, "broad", 3, "O-H stretching (Carbroxylic Acid)");
+        tree.insert(2700, 3200, "broad", 1, "O-H Stretching (Alcohol)");
+        tree.insert(2800, 3000, "broad", 3, "N-H stretching (Amine Salt)");
+        tree.insert(3267, 3333, "narrow", 3, "C-H Stretching (Alkyne)");
+        tree.insert(3000, 3100, "narrow", 2, "C-H Stretching (Alkene)");
+        tree.insert(2840, 3000, "narrow", 2, "C-H Stretching (Alkane)");
+        tree.insert(2695, 2830, "narrow", 2, "C-H Stretching (Aldehyde)");
+        tree.insert(2350, 2350, "narrow", 3, "Carbon Dioxide");
+        tree.insert(2250, 2275, "broad", 3, "N=C=O Stretching (Isocyanate)");
+        tree.insert(2222, 2260, "narrow", 1, "C Ξ N Stretching (Nitrile)");
+        tree.insert(2190, 2260, "narrow", 1, "C Ξ C Stretching (Alkyne)");
+        tree.insert(2140, 2175, "narrow", 3, "S - C Ξ N Stretching (Thiocyanate)");
+        tree.insert(2120, 2160, "narrow", 3, "N=N=N Stretching (Azide)");
+        tree.insert(2150, 2150, "narrow", 2, "C=C=O Stretching ");
+
+
+
+
+        JFrame frame = new JFrame();
+
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
+        panel.setLayout(new GridLayout(4, 2, 10, 20));
+
+
+        frame.add(panel, BorderLayout.CENTER);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setTitle("Bond Frequency Identifier");
+        // Call pack to set the window size to preferred size
+        pack();
+
+        // Center the window on the screen
+        setLocationRelativeTo(null);
+
+        JLabel freqLabel = new JLabel("Frequency of the observed peak (without units):");
+        freqField = new JTextField();
+        JLabel strengthLabel = new JLabel("Strength of observed peak (Weak[1], Medium[2], Strong[3]):");
+        strengthField = new JTextField();
+        JLabel shapeLabel = new JLabel("Shape of peak (narrow/broad):");
+        shapeField = new JTextField();
+        JButton findButton = new JButton("Find Bond");
+        output = new JLabel();
+
+
+        panel.add(freqLabel);
+        panel.add(freqField);
+        panel.add(strengthLabel);
+        panel.add(strengthField);
+        panel.add(shapeLabel);
+        panel.add(shapeField);
+        panel.add(findButton, CENTER_ALIGNMENT);
+        panel.add(output);
+
+        add(panel);
+
+        findButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    int inputFreq = Integer.parseInt(freqField.getText());
+                    int inputStrength = Integer.parseInt(strengthField.getText());
+                    String inputShape = shapeField.getText().toLowerCase();
+
+                    String bond = tree.lookup(inputFreq, inputShape, inputStrength);
+                    output.setText("The bond is: " + bond);
+                } catch (NumberFormatException exception) {
+                    output.setText("Not a valid input. Please enter valid values.");
+                }
+            }
+        });
+    }
+    public static void main (String[] args) {
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new IRGUI().setVisible(true);
+            }
+        });
+//
+//
+//        Scanner sc = new Scanner(System.in);
+//
+//        System.out.println("\nHello, this program is intended to find the corresponding bond given the strength, shape, and the frequency of the specific IR spectrum peak\n");
+//
+//        System.out.println("Enter the estimated frequency of your peak without units: ");
+//        int inputFreq = sc.nextInt();
+//
+//        System.out.println("Now enter the strength of your peak on a scale from 1-3 (Weak[1], Medium[2], Strong[3]): ");
+//        int inputStrength = sc.nextInt();
+//
+//        System.out.println("Finally, what's the shape of your peak? Is it narrow or broad: ");
+//        String inputShape = sc.next();
+//
+//        String bond = tree.lookup(inputFreq, inputShape, inputStrength);
+//        System.out.println("\nBond you are looking for: " + bond);
+
+    }
+
+}
 // freqKey class represents frequency range
 class freqKey {
     int minFreq;
@@ -186,53 +306,4 @@ class Tree {
             inOrderTraversal(node.right);
         }
     }
-}
-
-public class  IRGUI {
-
-public IRGUI() {
-    JFrame frame = new JFrame();
-
-    JPanel panel = new JPanel();
-    panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
-    panel.setLayout(new GridLayout(0, 1));
-
-    frame.add(panel, BorderLayout.CENTER);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setTitle("Bond Frequency Identifier");
-    frame.pack();
-    frame.setVisible(true);
-}
-    public static void main (String[] args) {
-
-
-        Tree tree = new Tree();
-
-
-        // Insert some sample data
-        tree.insert(3584, 3700,"narrow", 2, "O-H Stretching (Alcohol)");
-        tree.insert(3200, 3550, "broad", 3, "O-H Stretching (Alcohol)");
-        tree.insert(3500, 3500, "narrow", 2, "N-H Stretching (Primary Amine)");
-        // Perform lookups
-
-        tree.dumpTree();
-
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("\nHello, this program is intended to find the corresponding bond given the strength, shape, and the frequency of the specific IR spectrum peak\n");
-
-        System.out.println("Enter the estimated frequency of your peak without units: ");
-            int inputFreq = sc.nextInt();
-
-        System.out.println("Now enter the strength of your peak on a scale from 1-3 (Weak[1], Medium[2], Strong[3]): ");
-            int inputStrength = sc.nextInt();
-
-        System.out.println("Finally, what's the shape of your peak? Is it narrow or broad: ");
-            String inputShape = sc.next();
-
-        String bond = tree.lookup(inputFreq, inputShape, inputStrength);
-        System.out.println("\nBond you are looking for: " + bond);
-
-    }
-
 }
