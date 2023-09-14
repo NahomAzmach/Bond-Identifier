@@ -1,3 +1,4 @@
+
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
@@ -125,24 +126,6 @@ public class IRGUI extends JFrame {
                 new IRGUI().setVisible(true);
             }
         });
-//
-//
-//        Scanner sc = new Scanner(System.in);
-//
-//        System.out.println("\nHello, this program is intended to find the corresponding bond given the strength, shape, and the frequency of the specific IR spectrum peak\n");
-//
-//        System.out.println("Enter the estimated frequency of your peak without units: ");
-//        int inputFreq = sc.nextInt();
-//
-//        System.out.println("Now enter the strength of your peak on a scale from 1-3 (Weak[1], Medium[2], Strong[3]): ");
-//        int inputStrength = sc.nextInt();
-//
-//        System.out.println("Finally, what's the shape of your peak? Is it narrow or broad: ");
-//        String inputShape = sc.next();
-//
-//        String bond = tree.lookup(inputFreq, inputShape, inputStrength);
-//        System.out.println("\nBond you are looking for: " + bond);
-
     }
 
 }
