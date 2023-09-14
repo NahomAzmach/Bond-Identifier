@@ -13,7 +13,7 @@ public class IRGUI extends JFrame {
     private JTextField freqField;
     private JTextField shapeField;
     private JTextField strengthField;
-    private JLabel output;
+    private JTextArea output;
 
     public IRGUI() {
         Tree tree = new Tree();
@@ -38,7 +38,11 @@ public class IRGUI extends JFrame {
         tree.insert(2190, 2260, "narrow", 1, "C Ξ C Stretching (Alkyne)");
         tree.insert(2140, 2175, "narrow", 3, "S - C Ξ N Stretching (Thiocyanate)");
         tree.insert(2120, 2160, "narrow", 3, "N=N=N Stretching (Azide)");
-        tree.insert(2150, 2150, "narrow", 2, "C=C=O Stretching ");
+        tree.insert(2150, 2150, "narrow", 2, "C=C=O Stretching (Ketene)");
+        tree.insert(2120, 2145, "narrow", 3, "N=C=N stretching (Carbodiimide)");
+        tree.insert(2100, 2140, "narrow", 1, "CΞC stretching (Monosubstituted alkyne)");
+        tree.insert(1900, 2140, "narrow", 3, "N=C=S stretching (Isothiocyanate)");
+        tree.insert(1900, 2000, "narrow", 2, "C=C=C stretching (Allene)");
 
 
 
@@ -63,10 +67,13 @@ public class IRGUI extends JFrame {
         freqField = new JTextField();
         JLabel strengthLabel = new JLabel("Strength of observed peak (Weak[1], Medium[2], Strong[3]):");
         strengthField = new JTextField();
-        JLabel shapeLabel = new JLabel("Shape of peak (narrow/broad):");
+        JLabel shapeLabel = new JLabel("Shape of peak(narrow/broad) [If you have to guess, guess narrow]:");
         shapeField = new JTextField();
         JButton findButton = new JButton("Find Bond");
-        output = new JLabel();
+        output = new JTextArea();
+        output.setEditable(false); //read only
+        JScrollPane scroll = new JScrollPane(output); // Add a scroll pane
+
 
 
         panel.add(freqLabel);
@@ -76,7 +83,7 @@ public class IRGUI extends JFrame {
         panel.add(shapeLabel);
         panel.add(shapeField);
         panel.add(findButton, CENTER_ALIGNMENT);
-        panel.add(output);
+        panel.add(scroll);
 
         add(panel);
 
@@ -88,14 +95,28 @@ public class IRGUI extends JFrame {
                     int inputStrength = Integer.parseInt(strengthField.getText());
                     String inputShape = shapeField.getText().toLowerCase();
 
-                    String bond = tree.lookup(inputFreq, inputShape, inputStrength);
-                    output.setText("The bond is: " + bond);
+                    List<String> bonds = tree.lookup(inputFreq, inputShape, inputStrength);
+                    displayOutput(bonds);
                 } catch (NumberFormatException exception) {
-                    output.setText("Not a valid input. Please enter valid values.");
+                    displayOutput("Not a valid input. Please enter valid values.");
                 }
             }
         });
     }
+
+    private void displayOutput(List<String> outputLines) {
+        StringBuilder outputText = new StringBuilder();
+        for (String line : outputLines) {
+            outputText.append(line).append("\n");
+        }
+        output.setText(outputText.toString());
+    }
+
+    private void displayOutput(String outputLine) {
+        output.setText(outputLine);
+    }
+
+
     public static void main (String[] args) {
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -179,19 +200,16 @@ class Tree {
     }
 
     private Node insertHlpr(Node node, int minFreq, int maxFreq, String shape, int strength, String bond) {
-
         if(node == null) {
             return new Node(minFreq, maxFreq, shape, strength, bond);
         }
 
         // checks if ranges overlap, resorts to order by strength if it overlaps.
         if (maxFreq >= node.minFreq && minFreq <= node.maxFreq) {
-            // Compare strengths
             if (strength > node.strength) {
                 // New node is stronger, insert it on the left
                 node.left = insertHlpr(node.left, minFreq, maxFreq, shape, strength, bond);
             } else {
-                // New node is weaker or equal, insert it on the right
                 node.right = insertHlpr(node.right, minFreq, maxFreq, shape, strength, bond);
             }
         } else if(maxFreq < node.minFreq) {
@@ -205,93 +223,31 @@ class Tree {
 
     }
 
-    public void delete(int freq) {
-        root = deleteNode(root, freq);
-    }
-
-    private Node deleteNode(Node root, int freq) {
-        if (root == null) {
-            return root; // Node not found
-        }
-
-        // Recursively search for the node to delete
-        if (freq < root.minFreq) {
-            root.left = deleteNode(root.left, freq);
-        } else if (freq > root.maxFreq) {
-            root.right = deleteNode(root.right, freq);
-        } else {
-            // Node with the given frequency found, handle different cases
-
-            // Case 1: Node with only one child or no child
-            if (root.left == null) {
-                return root.right;
-            } else if (root.right == null) {
-                return root.left;
-            }
-
-            // Case 2: Node with two children, find the in-order successor (smallest in the right subtree)
-            root.freq = minValue(root.right);
-
-            // Delete the in-order successor
-            root.right = deleteNode(root.right, root.freq);
-        }
-
-        return root;
-    }
-
-    private int minValue(Node node) {
-        int minValue = node.minFreq;
-        while (node.left != null) {
-            minValue = node.left.minFreq;
-            node = node.left;
-        }
-        return minValue;
-    }
-
-
-    public String lookup(int freq, String shape, int strength) {
-
-        List<freqKey> keys = new ArrayList<>(freqToBond.keySet());
-
-        // check frequency map first to see if in range of key
-        for (int i = 0; i < keys.size(); i++) {
-            freqKey key = keys.get(i);
-            if(key.minFreq <= freq && freq <= key.maxFreq){
-                // if so, get bond and return
-                return freqToBond.get(key);
-            }
-        }
+    public List<String> lookup(int freq, String shape, int strength) {
+        List<String> bondsThatApply = new ArrayList<>();
 
         // Use lookupHelper for more specific search
-        Node ans = lookupHelper(root, freq, shape, strength);
-        if (ans != null) {
-            return ans.bond;
-        } else {
-            return "Bond Not Found";
+        lookupHelper(root, freq, shape, strength, bondsThatApply);
+
+        if (bondsThatApply.isEmpty()) {
+            bondsThatApply.add("Bond not found");
         }
 
-
+        return bondsThatApply;
     }
 
 
-    private Node lookupHelper(Node node, int freq, String shape, int strength) {
+    private void lookupHelper(Node node, int freq, String shape, int strength, List<String> matches) {
         if (node == null) {
-            return null;
+            return;
         }
 
         if (freq >= node.minFreq && freq <= node.maxFreq && shape.equalsIgnoreCase(node.shape) && strength == node.strength) {
-            return node;
+            matches.add(node.bond);
         }
 
-        /* if the target frequency (freq) is less than the current node's
-        minimum frequency, it searches in the left subtree . */
-        if (freq < node.minFreq) {
-            return lookupHelper(node.left, freq, shape, strength);
-        } else if (freq > node.maxFreq) { // check right subtree recursively
-            return lookupHelper(node.right, freq, shape, strength);
-        }
-
-        return null;
+        lookupHelper(node.left, freq, shape, strength, matches);
+        lookupHelper(node.right, freq, shape, strength, matches);
     }
 
     public void dumpTree() {
