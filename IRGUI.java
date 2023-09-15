@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
@@ -20,7 +19,7 @@ public class IRGUI extends JFrame {
         Tree tree = new Tree();
 
 
-        // Insert some sample data
+        // insert some sample data
         tree.insert(3584, 3700,"narrow", 2, "O-H Stretching (Alcohol)");
         tree.insert(3200, 3550, "broad", 3, "O-H Stretching (Alcohol)");
         tree.insert(3500, 3500, "narrow", 2, "N-H Stretching (Primary Amine)");
@@ -46,8 +45,7 @@ public class IRGUI extends JFrame {
         tree.insert(1900, 2000, "narrow", 2, "C=C=C stretching (Allene)");
 
 
-
-
+        // GUI
         JFrame frame = new JFrame();
 
         JPanel panel = new JPanel();
@@ -99,11 +97,12 @@ public class IRGUI extends JFrame {
                     List<String> bonds = tree.lookup(inputFreq, inputShape, inputStrength);
                     displayOutput(bonds);
                 } catch (NumberFormatException exception) {
-                    displayOutput("Not a valid input. Please enter valid values.");
+                    displayOutputCatch("Not a valid input. Please enter valid values.");
                 }
             }
         });
     }
+
 
     private void displayOutput(List<String> outputLines) {
         StringBuilder outputText = new StringBuilder();
@@ -113,7 +112,8 @@ public class IRGUI extends JFrame {
         output.setText(outputText.toString());
     }
 
-    private void displayOutput(String outputLine) {
+
+    private void displayOutputCatch(String outputLine) {
         output.setText(outputLine);
     }
 
@@ -126,9 +126,28 @@ public class IRGUI extends JFrame {
                 new IRGUI().setVisible(true);
             }
         });
+//
+//
+//        Scanner sc = new Scanner(System.in);
+//
+//        System.out.println("\nHello, this program is intended to find the corresponding bond given the strength, shape, and the frequency of the specific IR spectrum peak\n");
+//
+//        System.out.println("Enter the estimated frequency of your peak without units: ");
+//        int inputFreq = sc.nextInt();
+//
+//        System.out.println("Now enter the strength of your peak on a scale from 1-3 (Weak[1], Medium[2], Strong[3]): ");
+//        int inputStrength = sc.nextInt();
+//
+//        System.out.println("Finally, what's the shape of your peak? Is it narrow or broad: ");
+//        String inputShape = sc.next();
+//
+//        String bond = tree.lookup(inputFreq, inputShape, inputStrength);
+//        System.out.println("\nBond you are looking for: " + bond);
+
     }
 
 }
+
 // freqKey class represents frequency range
 class freqKey {
     int minFreq;
@@ -139,6 +158,7 @@ class freqKey {
         this.maxFreq = max;
     }
 }
+
 
 class Node {
     int freq;
@@ -177,12 +197,14 @@ class Tree {
 
         //inserts node into tree as a range
         root = insertHlpr(root, min, max, shape, strength, bond);
-        // creat freqKey object as map key
+        // create freqKey object as map key
         freqKey key = new freqKey(min, max);
         freqToBond.put(key, bond);
     }
 
+    // recursive insertion
     private Node insertHlpr(Node node, int minFreq, int maxFreq, String shape, int strength, String bond) {
+        // leaf node
         if(node == null) {
             return new Node(minFreq, maxFreq, shape, strength, bond);
         }
@@ -190,11 +212,12 @@ class Tree {
         // checks if ranges overlap, resorts to order by strength if it overlaps.
         if (maxFreq >= node.minFreq && minFreq <= node.maxFreq) {
             if (strength > node.strength) {
-                // New node is stronger, insert it on the left
+                // new node is stronger, insert it on the left
                 node.left = insertHlpr(node.left, minFreq, maxFreq, shape, strength, bond);
             } else {
                 node.right = insertHlpr(node.right, minFreq, maxFreq, shape, strength, bond);
             }
+            // means the new bond is less than the current so traverse recursively through left subtree
         } else if(maxFreq < node.minFreq) {
             node.left = insertHlpr(node.left, minFreq, maxFreq, shape, strength, bond);
         }
@@ -225,7 +248,8 @@ class Tree {
             return;
         }
 
-        if (freq >= node.minFreq && freq <= node.maxFreq && shape.equalsIgnoreCase(node.shape) && strength == node.strength) {
+        if (freq >= node.minFreq && freq <= node.maxFreq && shape.equalsIgnoreCase(node.shape)
+                && strength == node.strength) {
             matches.add(node.bond);
         }
 
@@ -233,15 +257,16 @@ class Tree {
         lookupHelper(node.right, freq, shape, strength, matches);
     }
 
+    /* dump method for debugging purposes */
     public void dumpTree() {
         System.out.println("Contents of tree:");
         inOrderTraversal(root);
     }
-
     private void inOrderTraversal(Node node) {
         if (node != null) {
             inOrderTraversal(node.left);
-            System.out.println("Min and Max Frequency respectively: " + node.minFreq + ", " + node.maxFreq + ", Shape: " + node.shape + ", Strength: " + node.strength + ", Bond: " + node.bond);
+            System.out.println("Min and Max Frequency respectively: " + node.minFreq + ", "
+                    + node.maxFreq + ", Shape: " + node.shape + ", Strength: " + node.strength + ", Bond: " + node.bond);
             inOrderTraversal(node.right);
         }
     }
